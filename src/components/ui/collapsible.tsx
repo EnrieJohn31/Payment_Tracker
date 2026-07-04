@@ -19,7 +19,12 @@ export function Collapsible({ children, title }: PropsWithChildren & { title: st
         onPress={() => setIsOpen((value) => !value)}>
         <ThemedView type="backgroundElement" style={styles.button}>
           <SymbolView
-            name={{ ios: 'chevron.right', android: 'chevron_right', web: 'chevron_right' }}
+            name="chevron.right"
+            fallback={
+              <ThemedText type="smallBold" style={styles.chevronFallback}>
+                {'>'}
+              </ThemedText>
+            }
             size={14}
             weight="bold"
             tintColor={theme.text}
@@ -55,6 +60,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  chevronFallback: {
+    lineHeight: 14,
   },
   content: {
     marginTop: Spacing.three,

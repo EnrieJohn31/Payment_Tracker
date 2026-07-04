@@ -25,6 +25,19 @@
     },
     "plugins": [
       "expo-router",
+      "expo-sqlite",
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Allow Payment Tracker to use the camera to photograph receipts."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Allow Payment Tracker to mark where your purchases were made."
+        }
+      ],
       [
         "expo-splash-screen",
         {

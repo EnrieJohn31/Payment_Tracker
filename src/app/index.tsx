@@ -1,62 +1,95 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Link, useRouter } from 'expo-router';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
+import { LimitBanner } from '@/components/limit-banner';
+import { ProgressBar } from '@/components/progress-bar';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+import { Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
+import { formatPeso } from '@/lib/currency';
+import { formatDayShort } from '@/lib/dates';
+import { usePayments } from '@/lib/payments-context';
 
 export default function HomeScreen() {
+  const theme = useTheme();
+  const router = useRouter();
+  const { payments, balanceLimit, spentThisMonth, remaining, limitStatus } = usePayments();
+
+  const recent = payments.slice(0, 3);
+  const barColor =
+    limitStatus === 'maxed'
+      ? theme.danger
+      : limitStatus === 'near'
+        ? theme.warning
+        : theme.success;
+
   return (
     <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
+      <ScrollView contentContainerStyle={styles.content}>
+        <LimitBanner />
+
+        {/* Month summary */}
+        <View style={[styles.card, { backgroundColor: theme.backgroundElement }]}>
+          <ThemedText type="small" themeColor="textSecondary">
+            Spent this month
           </ThemedText>
-        </ThemedView>
+          <ThemedText type="subtitle">{formatPeso(spentThisMonth)}</ThemedText>
+          {balanceLimit !== null ? (
+            <>
+              <ProgressBar value={spentThisMonth / balanceLimit} color={barColor} />
+              <ThemedText type="small" themeColor="textSecondary">
+                {limitStatus === 'maxed'
+                  ? `Limit of ${formatPeso(balanceLimit)} reached`
+                  : `${formatPeso(remaining ?? 0)} left of ${formatPeso(balanceLimit)} limit`}
+              </ThemedText>
+            </>
+          ) : (
+            <Link href="/balance-limit-setting">
+              <ThemedText type="linkPrimary">Set a balance limit →</ThemedText>
+            </Link>
+          )}
+        </View>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+        {/* Add purchase */}
+        <Pressable
+          onPress={() => router.push('/add-purchase')}
+          style={[styles.addButton, { backgroundColor: theme.tint }]}>
+          <ThemedText type="smallBold" style={styles.addLabel}>
+            📷 Add purchase
+          </ThemedText>
+          <ThemedText type="small" style={styles.addHint}>
+            Snap the receipt, list what you bought, mark the place
+          </ThemedText>
+        </Pressable>
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
+        {/* Recent payments */}
+        <View style={styles.recentHeader}>
+          <ThemedText type="smallBold">Recent payments</ThemedText>
+          <Link href="/receipts-and-payments">
+            <ThemedText type="linkPrimary">See all</ThemedText>
+          </Link>
+        </View>
+        {recent.length === 0 ? (
+          <ThemedText type="small" themeColor="textSecondary">
+            Nothing here yet — your purchases will show up in this list.
+          </ThemedText>
+        ) : (
+          recent.map((p) => (
+            <View key={p.id} style={[styles.recentRow, { backgroundColor: theme.backgroundElement }]}>
+              <View style={styles.recentText}>
+                <ThemedText type="smallBold" numberOfLines={1}>
+                  {p.place}
+                </ThemedText>
+                <ThemedText type="small" themeColor="textSecondary">
+                  {formatDayShort(p.createdAt)}
+                </ThemedText>
+              </View>
+              <ThemedText type="smallBold">{formatPeso(p.total)}</ThemedText>
+            </View>
+          ))
+        )}
+      </ScrollView>
     </ThemedView>
   );
 }
@@ -64,35 +97,43 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+  },
+  content: {
+    padding: Spacing.three,
+    gap: Spacing.three,
+  },
+  card: {
+    borderRadius: 12,
+    padding: Spacing.three,
+    gap: Spacing.two,
+  },
+  addButton: {
+    borderRadius: 12,
+    padding: Spacing.three,
+    gap: Spacing.half,
+  },
+  addLabel: {
+    color: '#ffffff',
+    fontSize: 16,
+  },
+  addHint: {
+    color: '#ffffffcc',
+  },
+  recentHeader: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: Spacing.two,
   },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
+  recentRow: {
+    flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
+    borderRadius: 12,
+    padding: Spacing.three,
   },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
+  recentText: {
     flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
-  title: {
-    textAlign: 'center',
-  },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+    gap: Spacing.half,
   },
 });
