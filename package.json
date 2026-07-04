@@ -3,7 +3,6 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "dependencies": {
-    "@expo/ui": "~0.2.0-beta.9",
     "@react-native-ml-kit/text-recognition": "^2.0.0",
     "@react-navigation/drawer": "^7.5.0",
     "expo": "~54.0.8",
