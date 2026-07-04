@@ -11,7 +11,7 @@ type Props = {
   onSelect: (coords: LatLng, poiName?: string) => void;
 };
 
-/** react-native-maps has no web support; show the picked spot as text instead. */
+/** The native MapLibre map is mobile-only; show the picked spot as text on web. */
 export function LocationMap({ coords }: Props) {
   const theme = useTheme();
 

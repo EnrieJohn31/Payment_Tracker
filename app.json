@@ -8,22 +8,18 @@
     "scheme": "paymenttracker",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "bundleIdentifier": "com.enriejohn.paymenttracker",
+      "icon": "./assets/images/icon.png"
     },
     "android": {
       "package": "com.enriejohn.paymenttracker",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#0F75F5",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "config": {
-        "googleMaps": {
-          "apiKey": "REPLACE_WITH_YOUR_ANDROID_MAPS_API_KEY"
-        }
-      },
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION"
@@ -42,7 +38,8 @@
       [
         "expo-image-picker",
         {
-          "cameraPermission": "Allow Payment Tracker to use the camera to photograph receipts."
+          "cameraPermission": "Allow Payment Tracker to use the camera to photograph receipts.",
+          "microphonePermission": false
         }
       ],
       [
@@ -54,11 +51,12 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#0F75F5",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
-      ]
+      ],
+      "@maplibre/maplibre-react-native"
     ],
     "experiments": {
       "typedRoutes": true,

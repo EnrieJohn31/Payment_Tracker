@@ -2,6 +2,7 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { Drawer } from 'expo-router/drawer';
 import * as SplashScreen from 'expo-splash-screen';
 import { SQLiteProvider } from 'expo-sqlite';
+import { StatusBar } from 'expo-status-bar';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import { AppDrawerContent } from '@/components/drawer-content';
@@ -18,6 +19,10 @@ function RootNavigator() {
 
   return (
     <ThemeProvider value={scheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <StatusBar
+        backgroundColor={colors.background}
+        style={scheme === 'dark' ? 'light' : 'dark'}
+      />
       <Drawer
         initialRouteName="index"
         drawerContent={(props) => <AppDrawerContent {...props} />}
@@ -33,6 +38,9 @@ function RootNavigator() {
             backgroundColor: colors.background,
           },
           headerTintColor: colors.text,
+          headerTitleStyle: {
+            color: colors.text,
+          },
           sceneStyle: {
             backgroundColor: colors.background,
           },
